@@ -1,0 +1,36 @@
+# Lives in main/ (ESP-IDF reads Kconfig.projbuild from components only, not the project root).
+menu "ELLM chat"
+    config CHAT_DISPLAY
+        bool "Use the AMOLED"
+        default y
+        help
+            Draw on the AMOLED (the chat screen, or the tok/s number: CHAT_SCREEN_TEXT). Switch
+            off only to measure the screen's cost (Plan 4 Tasks 5 and 14): with n the panel is
+            never initialized.
+    config CHAT_SCREEN_TEXT
+        bool "Chat screen (reply text, state, context bar, tok/s)"
+        default y
+        depends on CHAT_DISPLAY
+        help
+            The chat screen (docs/stages/screen-design.md): thinking/writing/idle, the context
+            fill, the user line and the streaming reply (last 9 rows, Latin-1), the live tok/s.
+            n: only the live tok/s number, 0 when idle (the Task 5 screen; the fallback if the
+            chat screen ever costs more than 3 % of tok/s).
+    config CHAT_PREFETCH
+        bool "DCache autoload (prefetch) over the PSRAM arena"
+        default y
+        help
+            Enable the DCache autoload over the PSRAM arena (core, KV, logits), as firmware/app
+            does: ~5 % faster decode (measured on the chat: 3.61 -> 3.79 tok/s, +4.9 %, Plan 4
+            Task 5; Plan 3: 4-5 % per token). The +13 % in the spec is the S0 matvec kernel
+            alone; the flash-bound head and the attention gain less. With n it stays off
+            (fallback if prefetch misbehaves: ship it off and record the cost). The banner
+            reports prefetch=on|off.
+    config CHAT_DEBUG_STACK
+        bool "Stack high-water marks in the stats line (debug)"
+        default n
+        help
+            Append ", stack_free=<B> worker_stack_free=<B>" (lifetime minimum free stack of the
+            main task and the core-1 worker) inside the stats line brackets. Debug builds only:
+            the normal protocol has no such field.
+endmenu

@@ -1,0 +1,13 @@
+menu "ELLM staging"
+    config ELLM_FORCE_SPILL_KB
+        int "Force a flash spill of at least this many KB of the core (debug)"
+        default 0
+        range 0 32768
+        help
+            Measurement knob (Plan 4 Task 12b), used by firmware/app and firmware/chat: leave at
+            least this many KB (1024 B) of the model core mapped from flash instead of copied to
+            the PSRAM arena, taken from the end of the staging priority order (the last layers'
+            FFN matrices first, then attention weights). 0 = stage as much as fits (the normal
+            policy). Outputs are unchanged (same bytes); the "ELLM stage:" boot line reports
+            the split.
+endmenu

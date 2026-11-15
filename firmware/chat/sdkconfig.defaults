@@ -1,0 +1,32 @@
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_FETCH_INSTRUCTIONS=n
+CONFIG_SPIRAM_RODATA=n
+CONFIG_SPIRAM_XIP_FROM_PSRAM=n
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY=n
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_TASK_WDT_EN=n
+CONFIG_FREERTOS_HZ=1000
+CONFIG_ESP32S3_DATA_CACHE_64KB=y
+CONFIG_ESP32S3_DATA_CACHE_LINE_64B=y
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+# The whole pack lives in its own flash partition (0x190000, see partitions.csv), mmapped at boot;
+# the core is copied into one PSRAM arena (with KV + logits; core tensors that do not fit stay mapped
+# from flash: firmware/components/ellm_stage), the tied embedding/head is read from flash. All of PSRAM stays in the heap (no BSS in PSRAM): the app sizes its KV cache from what the
+# heap reports free. Main-task stack 8 KiB: firmware/chat keeps 3,388 B of it free (lifetime minimum over
+# a long chat incl. a context drop, CONFIG_CHAT_DEBUG_STACK; core-1 worker 1,980 B of 6,144 free).
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+# Display (status_display): keep SPI/GDMA driver code out of internal RAM (the model owns it).
+# Safe here: nothing draws while flash is written.
+CONFIG_SPI_MASTER_ISR_IN_IRAM=n
+CONFIG_SPI_SLAVE_ISR_IN_IRAM=n
+CONFIG_GDMA_CTRL_FUNC_IN_IRAM=n
+CONFIG_GDMA_ISR_HANDLER_IN_IRAM=n
